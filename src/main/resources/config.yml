@@ -1,0 +1,7 @@
+Options:
+  # 严格模式，尚不起作用
+  strictMode: true
+  # 唯一的管理员豁免
+  SuperOP: "your uuid"
+  # 禁止的物品
+  bannedItem: ["BEDROCK" ,"SPAWNER" ,"REINFORCED_DEEPSLATE" ,"STRUCTURE_BLOCK"]

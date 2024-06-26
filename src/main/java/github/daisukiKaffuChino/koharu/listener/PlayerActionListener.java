@@ -2,12 +2,6 @@ package github.daisukiKaffuChino.koharu.listener;
 
 import github.daisukiKaffuChino.koharu.PluginConfig;
 import github.daisukiKaffuChino.koharu.utils.LogUtil;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -24,6 +18,11 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class PlayerActionListener implements Listener {
     private final JavaPlugin plugin;
@@ -119,17 +118,23 @@ public class PlayerActionListener implements Listener {
         if (opUuid.equals(player.getUniqueId().toString())) return;
         String[] split = message.split(" ");
         if (split.length >= 3) {
-            String substring = split[2].toUpperCase().substring(10);//能跑就行
-            this.plugin.getLogger().warning(substring);
+
             try {
-                if (bannedItems.containsValue(Material.valueOf(substring))) {
-                    playerCommandPreprocessEvent.setCancelled(true);
-                    plugin.getLogger().warning(player.getName() + "存在滥权行为");
-                    logUtil.outputLogFile(playerCommandPreprocessEvent.getPlayer(), substring);
+                String substring = split[2].toUpperCase().substring(10);//能跑就行
+                //plugin.getLogger().warning(substring);
+                try {
+                    if (bannedItems.containsValue(Material.valueOf(substring))) {
+                        playerCommandPreprocessEvent.setCancelled(true);
+                        plugin.getLogger().warning(player.getName() + "存在滥权行为");
+                        logUtil.outputLogFile(playerCommandPreprocessEvent.getPlayer(), substring);
+                    }
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning(e.getMessage());
                 }
-            } catch (IllegalArgumentException e) {
-                plugin.getLogger().warning(e.getMessage());
+            } catch (StringIndexOutOfBoundsException e) {
+                plugin.getLogger().warning("随便敲个命令都能报错，建议严查（");
             }
+
         }
     }
 

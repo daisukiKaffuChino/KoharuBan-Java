@@ -117,7 +117,8 @@ public class PlayerActionListener implements Listener {
         Player player = playerCommandPreprocessEvent.getPlayer();
         if (opUuid.equals(player.getUniqueId().toString())) return;
         String[] split = message.split(" ");
-        if (split.length >= 3) {
+
+        if (split.length >= 3 && split[0].equals("/give")) {
 
             try {
                 String substring = split[2].toUpperCase().substring(10);//能跑就行

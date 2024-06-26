@@ -1,5 +1,5 @@
 name: KoharuBanJava
-version: '0.1.0-dev'
+version: '0.1.1-dev'
 main: github.daisukiKaffuChino.koharu.KoharuBan
 api-version: '1.20'
 author: daisukiKaffuChino

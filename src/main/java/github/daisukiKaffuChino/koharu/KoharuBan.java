@@ -19,6 +19,7 @@ public final class KoharuBan extends JavaPlugin {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(new PlayerActionListener(KoharuBan.this, getConfig()), this);
         Objects.requireNonNull(getCommand("koharu")).setExecutor(new CmdActionListener(KoharuBan.this));
+        Objects.requireNonNull(getCommand("koharu")).setTabCompleter(new CmdActionListener.KoharuCmdTabCompleter());
     }
 
     @Override

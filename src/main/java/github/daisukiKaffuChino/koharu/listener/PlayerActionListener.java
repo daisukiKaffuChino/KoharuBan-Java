@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -72,13 +73,15 @@ public class PlayerActionListener implements Listener {
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
-        Player entity = (Player) event.getEntity();
-        if (opUuid.equals(entity.getUniqueId().toString())) return;
-        ItemStack itemStack = event.getItem().getItemStack();
-        if (this.bannedItems.containsValue(itemStack.getType())) {
-            event.setCancelled(true);
-            event.getItem().remove();
-            logUtil.outputLogFile(entity, itemStack.getType().name());
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player player) {
+            if (opUuid.equals(player.getUniqueId().toString())) return;
+            ItemStack itemStack = event.getItem().getItemStack();
+            if (bannedItems.containsValue(itemStack.getType())) {
+                event.setCancelled(true);
+                event.getItem().remove();
+                logUtil.outputLogFile(player, itemStack.getType().name());
+            }
         }
     }
 
@@ -93,7 +96,8 @@ public class PlayerActionListener implements Listener {
                 logUtil.outputLogFile(player, item.getType().name());
             }
             if (item != null) {
-                Map<Enchantment, Integer> enchantments = item.getEnchantments();
+
+                /*Map<Enchantment, Integer> enchantments = item.getEnchantments();
                 boolean hasDetected = false;
                 for (Enchantment enchantment : enchantments.keySet()) {
                     if (enchantments.size() > 5 || hasIllegalEnchantment(enchantments, enchantment.getMaxLevel())) {
@@ -101,12 +105,13 @@ public class PlayerActionListener implements Listener {
                         keySet.forEach(item::removeEnchantment);
                         hasDetected = true;
                     }
+                }*/
+
+                if (detectIllegalEnchantment(item)) {
+                    player.sendMessage("§l§9[KoharuBan] §c非法附魔已移除，你的行为将被记录！");
+                    logUtil.outputLogFile(player, item.getType().name() + " - 非法附魔");
                 }
 
-                if (hasDetected) {
-                    player.sendMessage("§l§9[KoharuBan] §c非法附魔已移除，你的行为将被记录！");
-                    this.logUtil.outputLogFile(player, item.getType().name() + " - 非法附魔");
-                }
             }
         }
     }
@@ -149,8 +154,26 @@ public class PlayerActionListener implements Listener {
                 player.getInventory().clear(i);
                 this.logUtil.outputLogFile(player, itemStack.getType().name());
             }
+
+            if (itemStack != null && detectIllegalEnchantment(itemStack)) {
+                player.sendMessage("§l§9[KoharuBan] §c非法附魔已移除，你的行为将被记录！");
+                logUtil.outputLogFile(player, itemStack.getType().name() + " - 非法附魔");
+            }
         }
 
+    }
+
+    private boolean detectIllegalEnchantment(ItemStack item) {
+        Map<Enchantment, Integer> enchantments = item.getEnchantments();
+        boolean hasDetected = false;
+        for (Enchantment enchantment : enchantments.keySet()) {
+            if (enchantments.size() > 5 || hasIllegalEnchantment(enchantments, enchantment.getMaxLevel())) {
+                Set<Enchantment> keySet = item.getEnchantments().keySet();
+                keySet.forEach(item::removeEnchantment);
+                hasDetected = true;
+            }
+        }
+        return hasDetected;
     }
 
     private boolean hasIllegalEnchantment(Map<Enchantment, Integer> map, int i) {

@@ -95,24 +95,12 @@ public class PlayerActionListener implements Listener {
                 player.getInventory().setItem(event.getNewSlot(), new ItemStack(Material.AIR));
                 logUtil.outputLogFile(player, item.getType().name());
             }
-            if (item != null) {
 
-                /*Map<Enchantment, Integer> enchantments = item.getEnchantments();
-                boolean hasDetected = false;
-                for (Enchantment enchantment : enchantments.keySet()) {
-                    if (enchantments.size() > 5 || hasIllegalEnchantment(enchantments, enchantment.getMaxLevel())) {
-                        Set<Enchantment> keySet = item.getEnchantments().keySet();
-                        keySet.forEach(item::removeEnchantment);
-                        hasDetected = true;
-                    }
-                }*/
-
-                if (detectIllegalEnchantment(item)) {
-                    player.sendMessage("§l§9[KoharuBan] §c非法附魔已移除，你的行为将被记录！");
-                    logUtil.outputLogFile(player, item.getType().name() + " - 非法附魔");
-                }
-
+            if (item != null && detectIllegalEnchantment(item)) {
+                player.sendMessage("§l§9[KoharuBan] §c非法附魔已移除，你的行为将被记录！");
+                logUtil.outputLogFile(player, item.getType().name() + " - 非法附魔");
             }
+
         }
     }
 
@@ -163,8 +151,9 @@ public class PlayerActionListener implements Listener {
 
     }
 
+    //TODO 检查冲突附魔 例如无限和经验修补
     private boolean detectIllegalEnchantment(ItemStack item) {
-        Map<Enchantment, Integer> enchantments = item.getEnchantments();
+       /* Map<Enchantment, Integer> enchantments = item.getEnchantments();
         boolean hasDetected = false;
         for (Enchantment enchantment : enchantments.keySet()) {
             if (enchantments.size() > 5 || hasIllegalEnchantment(enchantments, enchantment.getMaxLevel())) {
@@ -173,13 +162,30 @@ public class PlayerActionListener implements Listener {
                 hasDetected = true;
             }
         }
-        return hasDetected;
-    }
+        return hasDetected;*/
 
-    private boolean hasIllegalEnchantment(Map<Enchantment, Integer> map, int i) {
-        for (Integer integer : map.values())
-            if (integer > i) return true;
-        return false;
+        boolean hasDetected = false;
+        if (item != null && item.hasItemMeta() && item.getItemMeta().hasEnchants()) {
+            Map<Enchantment, Integer> enchantments = item.getEnchantments();
+
+            if (enchantments.size() > 5) {
+                Set<Enchantment> keySet = enchantments.keySet();
+                keySet.forEach(item::removeEnchantment);
+                plugin.getLogger().warning("移除过量附魔，数量：" + enchantments.size());
+                return true;//不需要继续遍历了
+            }
+            for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+                Enchantment enchantment = entry.getKey();
+                int level = entry.getValue();
+                if (level > enchantment.getMaxLevel()) {
+                    item.removeEnchantment(enchantment); //只移除超最大等级的那个附魔，而非全部
+                    plugin.getLogger().warning(String.format("清除附魔：%s 等级：%s", enchantment.getKey().getKey(), level));
+                    hasDetected = true;
+                }
+            }
+
+        }
+        return hasDetected;
     }
 
     private void info(String str) {

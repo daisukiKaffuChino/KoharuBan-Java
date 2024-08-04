@@ -22,6 +22,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -61,11 +62,17 @@ public class PlayerActionListener implements Listener {
 
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
-        if (event.getPlayer() instanceof Player player) {
-            info(player.getName() + " 开了: " + event.getInventory().getType());
-            info("uuid: " + player.getUniqueId());
-            checkInventoryAndRemove(player);
-        }
+        //添加检测延迟：感谢某服热心玩家反馈bug（
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (event.getPlayer() instanceof Player player) {
+                    info(player.getName() + " 开了: " + event.getInventory().getType());
+                    info("uuid: " + player.getUniqueId());
+                    checkInventoryAndRemove(player);
+                }
+            }
+        }.runTaskLater(plugin, 10);
     }
 
     @EventHandler

@@ -8,9 +8,11 @@
 
 ## 从基岩版插件迁移数据
 
-新插件仍未完全实现旧版插件的功能，因此目前还不能进行迁移。这是 [KoharuBan-Lua Repo](https://github.com/daisukiKaffuChino/KoharuBan) ，你可以随时关注动向。
+~~新插件仍未完全实现旧版插件的功能，因此目前还不能进行迁移。这是 [KoharuBan-Lua Repo](https://github.com/daisukiKaffuChino/KoharuBan) ，你可以随时关注动向。~~
+
+随着 LL3 打赢复活赛，将不再支持数据迁移。
 
 ## 测试于
 
-- Paper *1.20.6*
-- Minecraft JE *1.20.6*
+- Paper *1.20.6, 1.21.1*
+- Minecraft JE *1.20.6, 1.21.1*

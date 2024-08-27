@@ -1,5 +1,7 @@
 package github.daisukiKaffuChino.koharu.listener;
 
+import github.daisukiKaffuChino.koharu.IConfig;
+import github.daisukiKaffuChino.koharu.KoharuBan;
 import github.daisukiKaffuChino.koharu.PluginConfig;
 import github.daisukiKaffuChino.koharu.utils.LogUtil;
 import org.bukkit.Material;
@@ -28,27 +30,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayerActionListener implements Listener {
-    private final JavaPlugin plugin;
+public class PlayerActionListener implements Listener, IConfig {
+    private final KoharuBan plugin;
     private final Map<String, Material> bannedItems = new HashMap<>();
     private final LogUtil logUtil = new LogUtil();
     private String opUuid;
 
     public PlayerActionListener(JavaPlugin javaPlugin, FileConfiguration fileConfiguration) {
-        this.plugin = javaPlugin;
-        ConfigurationSection configurationSection = fileConfiguration.getConfigurationSection("Options");
+        this.plugin = (KoharuBan) javaPlugin;
+        plugin.registerConfigReloadListener(this);
+        loadConfig(fileConfiguration);
+    }
 
+    @Override
+    public void onConfigReload() {
+        //FileConfiguration fileConfiguration = plugin.getConfig();
+        bannedItems.clear();
+        loadConfig(plugin.getConfig());
+    }
+
+    private void loadConfig(FileConfiguration fileConfiguration) {
+        ConfigurationSection configurationSection = fileConfiguration.getConfigurationSection("Options");
         if (configurationSection != null) {
             List<?> list = configurationSection.getList("bannedItem");
             this.opUuid = configurationSection.getString("SuperOP");
-
             assert list != null;
             for (Object _key : list) {
                 String key = (String) _key;
                 this.bannedItems.put(key, Material.valueOf(key));
             }
         }
-
     }
 
     @EventHandler

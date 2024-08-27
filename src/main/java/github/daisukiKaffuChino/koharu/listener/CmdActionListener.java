@@ -1,10 +1,7 @@
 package github.daisukiKaffuChino.koharu.listener;
 
-import github.daisukiKaffuChino.koharu.PluginConfig;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import github.daisukiKaffuChino.koharu.KoharuBan;
+import org.bukkit.command.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,10 +22,13 @@ public class CmdActionListener implements CommandExecutor {
         if (!str.equalsIgnoreCase("koharu")) return false;
 
         if (strArr[0].equalsIgnoreCase("reload") && strArr.length == 1) {
-            if (PluginConfig.isDebuggable) {
-                this.plugin.reloadConfig();
+            if (commandSender instanceof ConsoleCommandSender) {
+                plugin.reloadConfig();
+                KoharuBan koharuBan = (KoharuBan) plugin;
+                koharuBan.notifyConfigReloadListeners();
                 commandSender.sendMessage("KoharuBan 配置已重载");
-            } else commandSender.sendMessage("未处于调试模式");
+            } else commandSender.sendMessage("只允许控制台使用");
+
             return true;
         }
 

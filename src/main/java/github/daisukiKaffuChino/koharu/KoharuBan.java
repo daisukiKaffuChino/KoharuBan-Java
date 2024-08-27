@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Objects;
 
 public final class KoharuBan extends JavaPlugin {
+    private IConfig listener;
 
     @Override
     public void onLoad() {
@@ -22,9 +23,13 @@ public final class KoharuBan extends JavaPlugin {
         Objects.requireNonNull(getCommand("koharu")).setTabCompleter(new CmdActionListener.KoharuCmdTabCompleter());
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
+    //不知道别人要动态重载配置是咋写的
+    public void registerConfigReloadListener(IConfig listener) {
+        this.listener = listener;
+    }
+
+    public void notifyConfigReloadListeners() {
+        listener.onConfigReload();
     }
 
 }
